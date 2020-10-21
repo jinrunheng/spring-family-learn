@@ -379,7 +379,134 @@ Hikari是日语，它的原意是光
 
 ### 如何通过Spring JDBC访问数据库
 
+#### Spring的JDBC操作类
+
+spring-jdbc
+
+- core，JdbcTemplate 等相关核心接口和类
+- datasource,数据源相关的辅助类
+- object,将基本的JDBC操作封装成对象
+- support，错误码等其他辅助工具
+
+
+
+#### 常用的Bean注解
+
+通过注解来定义Bean
+
+- @Component
+- @Repository
+- @Service
+- @Controller
+  - @RestController
+
+#### 简单的JDBC操作
+
+JdbcTemplate
+
+- query
+- queryForObject
+- queryForList
+- update
+- execute
+
+#### SQL批处理
+
+jdbcTemplate
+
+- batchUpdate
+  - BatchPreparedStatementSetter
+- namedParameterJdbcTemplate
+  - batchUpdate
+    - SqlParameterSourceUtils.createBatch
+
+
+
+示例程序见github
+
 ### 什么是Spring的事务抽象
+
+#### 事务抽象的核心接口
+
+PlatformTransactionManager
+
+- DataSourceTransactionManager
+- HibernateTransactionManager
+- JtatransactionManager
+
+TransactionDefinition
+
+- Propagation
+- Isolation
+- Timeout
+- Read-only status
+
+#### 事务传播特性
+
+| 传播性                    | 值   | 描述                                 |
+| ------------------------- | ---- | ------------------------------------ |
+| PROPAGATION_REQUIRED      | 0    | 当前有事务就用当前的，没有就用新的   |
+| PROPAGATION_SUPPORTS      | 1    | 事务可有可无，不是必须的             |
+| PROPAGATION_MANDATORY     | 2    | 当前一定要有事务，不然就抛出异常     |
+| PROPAGATION_REQUIRES_NEW  | 3    | 无论是否有事务，都起一个新的任务     |
+| PROPAGATION_NOT_SUPPORTED | 4    | 不支持事务，按照非事务方式运行       |
+| PROPAGATION_NEVER         | 5    | 不支持事务，如果有事务则抛出异常     |
+| PROPAGATION_NESTED        | 6    | 当前有事务就在当前事务里再起一个事务 |
+
+
+
+#### 事务隔离特性
+
+| 隔离性                    | 值   | 脏读 | 不可重复读 | 幻读 |
+| ------------------------- | ---- | ---- | ---------- | ---- |
+| ISOLATION_READ_UNCOMMITED | 1    | yes  | yes        | yes  |
+| ISOLATION_READ_COMMITTED  | 2    | no   | yes        | yes  |
+| ISOLATION_REPEATABLE_READ | 3    | no   | no         | yes  |
+| ISOLATION_SERIALIZABLE    | 4    | no   | no         | no   |
+
+
+
+#### 编程式事务
+
+TransactionTemplate
+
+- TransactionCallback（有返回值）
+- TransactionCallbackWithoutResult（无返回值）
+
+PlatformTransactionManager
+
+- 可以传入TransactionDefinition进行定义
+
+#### 声明式事务
+
+
+
+<img src="img/shengmingshi.png" align="left">
+
+#### 声明式基于注解的配置方式
+
+开启事务注解的方式
+
+- @EnableTransactionManagement
+
+  一些配置
+
+  - proxyTargetClass
+  - mode
+  - order
+
+- @Transactional
+
+  - transactionManager
+  - propagation
+  - isolation
+  - timeout
+  - readOnly
+  - 怎么判断回滚
+
+
+
+编程式和声明式的程序示例请见github仓库代码
 
 ### 了解Spring的JDBC异常抽象
 
