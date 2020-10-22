@@ -39,7 +39,7 @@ public class DeclarativeTransactionDemoApplication implements CommandLineRunner 
             fooService.invokeInsertThenRollback();
         }catch (Exception e){
             log.info("BBB{}",
-                    jdbcTemplate.queryForObject("SELECT COUNT(*) FROM FOO WHERE BAR='BBB'", Long.class));// 1
+                    jdbcTemplate.queryForObject("SELECT COUNT(*) FROM FOO WHERE BAR='BBB'", Long.class));// 0
         }
     }
 }

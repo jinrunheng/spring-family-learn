@@ -479,10 +479,6 @@ PlatformTransactionManager
 
 #### 声明式事务
 
-
-
-<img src="img/shengmingshi.png" align="left">
-
 #### 声明式基于注解的配置方式
 
 开启事务注解的方式
@@ -509,6 +505,237 @@ PlatformTransactionManager
 编程式和声明式的程序示例请见github仓库代码
 
 ### 了解Spring的JDBC异常抽象
+
+Spring会将数据操作的异常转换为DataAccessException
+
+无论使用何种数据访问方式，都能使用一样的异常
+
+<img src="https://docs.spring.io/spring-framework/docs/current/spring-framework-reference/images/DataAccessException.png" align="left">
+
+#### Spring是怎么认识到那些错误码的
+
+通过 SQLErrorCodeSQLExceptionTranslator解析错误码
+
+ErrorCode定义
+
+- org/springframework/jdbc/support/sql-error-codes.xml
+- Classpath下的 sql-error-codes.xml
+
+ErrorCode的官网github网址：[springframework/jdbc/support/sql-error-codes](https://github.com/spring-projects/spring-framework/blob/master/spring-jdbc/src/main/resources/org/springframework/jdbc/support/sql-error-codes.xml)
+
+我们还可以自己在sql-error-codes中定制自己的异常，相关程序在github本章仓库
+
+### 答疑
+
+#### 开发环境
+
+- Java8/Java11
+- intelliJ IDEA社区版本(至少有lombok)
+- Apache Maven
+- Mac OS
+- Docker
+
+#### Spring常用注解解释
+
+##### Java Config 相关注解
+
+- @Configuration
+- @ImportResource
+- @ComponentScan
+- @Bean
+- @ConfigurationProperties
+
+定义相关注解
+
+- @Component/@repository/@Service
+- @Controller/@RestController
+- @RequestMapping
+
+注入相关注解
+
+- @Autowired/@Qualifier/@Resource
+- @Value
+
+#### Actuator提供的一些好用的Endpoint
+
+| URL               | 作用                 |
+| ----------------- | -------------------- |
+| /actuator/health  | 健康检查             |
+| /actuator/beans   | 查看容器中的所有Bean |
+| /actuator/mapping | 查看Web的URL映射     |
+| /actuator/env     | 查看环境信息         |
+
+在默认情况下，/actuator/health以及/actuator/info是可以通过Web访问的
+
+如果要解禁所有的Endpoint我们需要在我们的配置文件中写入
+
+```properties
+management.endpoints.web.exposure.include=*
+```
+
+如果只想发布指定的Endpoint
+
+``` properties
+management.endpoints.web.exposure.includ=health,beans
+```
+
+#### 关于REQUIRES_NEW与NESTED 事务传播特性的说明
+
+REQUIRES_NEW，始终启动1个新事务
+
+- 两个事务是没有任何关联的
+
+NESTED，在原事务内启动一个内嵌事务
+
+- 两个事务有关联
+- 外部事务回滚，内嵌事务也会回滚
+
+程序示例：
+
+RollbackException
+
+```java
+package com.geektime.transactionpropagationdemo;
+
+public class RollbackException extends Exception{
+}
+```
+
+
+
+FooService
+
+```java
+package com.geektime.transactionpropagationdemo;
+
+public interface FooService {
+    void insertThenRollback() throws RollbackException;
+
+    void invokeInsertThenRollback();
+}
+```
+
+FooServiceImpl
+
+```java
+package com.geektime.transactionpropagationdemo;
+
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
+@Component
+@Slf4j
+public class FooServiceImpl implements FooService {
+
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
+
+    @Autowired
+    private FooService fooService;
+
+    @Override
+    @Transactional(rollbackFor = RollbackException.class, propagation = Propagation.REQUIRES_NEW)
+    public void insertThenRollback() throws RollbackException {
+        jdbcTemplate.execute("INSERT INTO FOO (BAR) VALUES('BBB')");
+        // throw new RollbackException();
+    }
+
+    @Override
+    @Transactional(rollbackFor = RuntimeException.class)
+    public void invokeInsertThenRollback() {
+        jdbcTemplate.execute("INSERT INTO FOO (BAR) VALUES ('AAA')");
+        try {
+            fooService.insertThenRollback();
+        } catch (RollbackException e) {
+            log.error("RollbackException:{}", e);
+        }
+        throw new RuntimeException();
+    }
+}
+```
+
+
+
+TransactionPropagationDemoApplication
+
+```java
+package com.geektime.transactionpropagationdemo;
+
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.jdbc.core.JdbcTemplate;
+
+@SpringBootApplication
+@Slf4j
+public class TransactionPropagationDemoApplication implements CommandLineRunner {
+
+    public static void main(String[] args) {
+        SpringApplication.run(TransactionPropagationDemoApplication.class, args);
+    }
+
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
+
+    @Autowired
+    private FooService fooService;
+
+    @Override
+    public void run(String... args) throws Exception {
+        try {
+            fooService.invokeInsertThenRollback();
+        } catch (Exception e) {
+
+        }
+        log.info("AAA:{}", jdbcTemplate.queryForObject("select count(*) from foo where bar='AAA'", Long.class));
+        log.info("BBB:{}", jdbcTemplate.queryForObject("select count(*) from foo where bar='BBB'", Long.class));
+    }
+}
+```
+
+对于这个程序而言，invokeInsertThenRollback 调用了 insertThenRollback，并且 外部调用了回滚，insertThenRollback中在@Transactional注解里使用了事务特性`propagation = Propagation.REQUIRES_NEW`
+
+所以两个事务没有任何关联，所以BBB会插入成功，而AAA则会插入失败
+
+
+
+将insertThenRollback中在@Transactional注解里的事务特性改为`propagation = Propagation.NESTED` 时，则两个事务是有关联的，当外部事务回滚，内嵌的事务也会发生回滚，则BBB也会插入失败
+
+
+
+#### 关于Alibaba Druid 的一些展开说明
+
+##### 慢SQL日志
+
+系统属性配置
+
+- druid.stat.logSlowSql=true
+- druid.stat.slowSqlMillis=3000
+
+Spring Boot
+
+- spring.datasource.druid.filter.stat.enabled=true
+- spring.datasource.druid.filter.stat.log-slow-sql=true
+- spring.datasource.druid.filter.stat.slow-sql-millis=3000
+
+通过配置，我们就可以检查哪些sql语句执行超时，具体程序请见本章节github仓库示例
+
+
+
+##### druid使用的注意事项
+
+- 没有特殊情况，不要在生产环境中打开监控的Servlet
+- 没有连接泄漏可能的情况下，不要开启removeAbandoned
+- testXxx的使用要注意
+- 务必要配置合理的超时时间
+
+
 
 
 

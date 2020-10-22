@@ -10,6 +10,9 @@ public class FooServiceImpl implements FooService {
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
+    @Autowired
+    private FooService fooService;
+
     @Override
     public void insertRecord() {
         jdbcTemplate.execute("INSERT INTO FOO(BAR) VALUES('AAA')");
@@ -28,6 +31,9 @@ public class FooServiceImpl implements FooService {
         // 因为invokeInsertThenRollback这个方法就没有添加事务 所以在执行了insertThenRollback之后就直接commit了
         // 因此并不会发生rollback
 
-        insertThenRollback();
+        // insertThenRollback(); 不会发生回滚
+        fooService.insertThenRollback(); // 会发生回滚
     }
+
+
 }
