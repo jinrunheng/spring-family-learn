@@ -38,5 +38,4 @@ public class Coffee implements Serializable {
 
     @UpdateTimestamp
     private Date updateTime;
-
 }
