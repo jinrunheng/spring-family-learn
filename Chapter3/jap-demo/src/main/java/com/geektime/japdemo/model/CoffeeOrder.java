@@ -41,6 +41,4 @@ public class CoffeeOrder implements Serializable {
 
     @UpdateTimestamp
     private Date updateTime;
-
-
 }

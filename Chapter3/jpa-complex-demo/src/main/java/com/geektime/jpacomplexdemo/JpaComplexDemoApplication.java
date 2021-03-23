@@ -43,9 +43,11 @@ public class JpaComplexDemoApplication implements ApplicationRunner {
     @Transactional
     public void run(ApplicationArguments args) throws Exception {
         initOrders();
+        findOrders();
     }
 
     private void initOrders() {
+
         Coffee latte = Coffee.builder().name("latte")
                 .price(Money.of(CurrencyUnit.of("CNY"), 30.0))
                 .build();
@@ -75,7 +77,9 @@ public class JpaComplexDemoApplication implements ApplicationRunner {
         log.info("Order: {}", order);
     }
 
+
     private void findOrders() {
+        // 按照 id 降序的方式打印出所有的咖啡
         coffeeRepository.findAll(Sort.by(Sort.Direction.DESC, "id"))
                 .forEach(coffee -> log.info("Loading:{}", coffee));
 
@@ -85,7 +89,7 @@ public class JpaComplexDemoApplication implements ApplicationRunner {
         list = coffeeOrderRepository.findByCustomerOrderById("Li Lei");
         log.info("findByCustomerOrderByName:{}", getJoinedOrderId(list));
 
-        // 不开启事务会因为没Session而报LazyInitializationException
+        // 不开启事务会因为没 Session 而报 LazyInitializationException
         list.forEach(o -> {
             log.info("Order {}", o.getId());
             o.getItems().forEach(i -> log.info("  Item {}", i));

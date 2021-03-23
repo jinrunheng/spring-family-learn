@@ -16,6 +16,7 @@ import java.io.Serializable;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Coffee extends BaseEntity implements Serializable {
+
     private String name;
 
     @Type(type = "org.jadira.usertype.moneyandcurrency.joda.PersistentMoneyAmount",
