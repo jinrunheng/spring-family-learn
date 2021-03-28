@@ -15,6 +15,7 @@ import javax.sql.DataSource;
 @SpringBootApplication
 @Slf4j
 public class SimpleJdbcDemoApplication implements CommandLineRunner {
+
     @Autowired
     private FooDao fooDao;
     @Autowired
@@ -23,6 +24,7 @@ public class SimpleJdbcDemoApplication implements CommandLineRunner {
     public static void main(String[] args) {
         SpringApplication.run(SimpleJdbcDemoApplication.class, args);
     }
+
 
     @Autowired
     @Bean

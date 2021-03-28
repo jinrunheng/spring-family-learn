@@ -14,6 +14,7 @@ import java.util.Map;
 @Slf4j
 @Repository
 public class FooDao {
+
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
@@ -26,10 +27,10 @@ public class FooDao {
             jdbcTemplate.update(sql, bar);
         });
 
-        Map<String,String> row = new HashMap<>();
-        row.put("BAR","ddd");
+        Map<String, String> row = new HashMap<>();
+        row.put("BAR", "ddd");
         Number id = simpleJdbcInsert.executeAndReturnKey(row);
-        log.info("ID of ddd:{}",id.longValue());
+        log.info("ID of ddd:{}", id.longValue());
     }
 
     public void listData() {
@@ -41,10 +42,12 @@ public class FooDao {
             log.info("Bar:{}", bar);
         });
 
-        List<Foo> fooList = jdbcTemplate.query("SELECT * FROM FOO", (resultSet, i) -> Foo.builder()
-                .id(resultSet.getLong(1))
-                .bar(resultSet.getString(2))
-                .build());
+        List<Foo> fooList = jdbcTemplate.query("SELECT * FROM FOO",
+                (resultSet, i) -> Foo.builder()
+                        .id(resultSet.getLong(1))
+                        .bar(resultSet.getString(2))
+                        .build());
+
         fooList.forEach(foo -> log.info("Foo:{}", foo));
     }
 }
