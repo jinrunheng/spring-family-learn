@@ -11,4 +11,6 @@ public interface CoffeeMapper {
 
     @Select("select * from t_coffee")
     List<Coffee> findAllCoffee();
+
+    
 }
