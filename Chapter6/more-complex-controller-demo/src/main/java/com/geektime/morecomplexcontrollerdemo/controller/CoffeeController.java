@@ -33,8 +33,8 @@ public class CoffeeController {
     private CoffeeService coffeeService;
 
     @PostMapping(path = "/",
-            consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE
-    )
+            consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+    @ResponseBody
     @ResponseStatus(HttpStatus.CREATED)
     public Coffee addCoffee(@Valid NewCoffeeRequest newCoffee, BindingResult result) {
         if (result.hasErrors()) {

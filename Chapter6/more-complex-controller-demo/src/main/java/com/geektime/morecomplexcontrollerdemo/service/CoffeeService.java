@@ -34,6 +34,6 @@ public class CoffeeService {
     }
 
     public Coffee getCoffeeByName(String name) {
-        return coffeeRepository.findCoffeeByName(name);
+        return coffeeRepository.findByName(name);
     }
 }
