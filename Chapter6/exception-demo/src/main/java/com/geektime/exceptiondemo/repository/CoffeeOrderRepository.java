@@ -1,0 +1,8 @@
+package com.geektime.exceptiondemo.repository;
+
+
+import com.geektime.exceptiondemo.model.CoffeeOrder;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface CoffeeOrderRepository extends JpaRepository<CoffeeOrder, Long> {
+}
