@@ -1,9 +1,8 @@
-package com.geektime.simpleresttemplatedemo.service;
+package com.geektime.complexresttemplatedemo.service;
 
-import com.geektime.simpleresttemplatedemo.model.Coffee;
-import com.geektime.simpleresttemplatedemo.repository.CoffeeRepository;
+import com.geektime.complexresttemplatedemo.model.Coffee;
+import com.geektime.complexresttemplatedemo.repository.CoffeeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,11 +17,15 @@ public class CoffeeService {
         return coffeeRepository.getOne(id);
     }
 
+    public Coffee getCoffeeByName(String name) {
+        return coffeeRepository.findByName(name);
+    }
+
     public Coffee saveCoffee(Coffee newCoffee) {
         return coffeeRepository.save(newCoffee);
     }
 
-    public List<Coffee> getAllCoffee(){
-        return coffeeRepository.findAll(Sort.by("id"));
+    public List<Coffee> getAllCoffee() {
+        return coffeeRepository.findAll();
     }
 }
