@@ -1,6 +1,6 @@
-package com.geektime.complexresttemplatedemo;
+package com.geektime.advancedresttemplatedemo;
 
-import com.geektime.complexresttemplatedemo.model.Coffee;
+import com.geektime.advancedresttemplatedemo.model.Coffee;
 import lombok.extern.slf4j.Slf4j;
 import org.joda.money.CurrencyUnit;
 import org.joda.money.Money;
@@ -24,7 +24,11 @@ import java.util.TimeZone;
 
 @SpringBootApplication
 @Slf4j
-public class ComplexResttemplateDemoApplication implements ApplicationRunner {
+public class AdvancedResttemplateDemoApplication implements ApplicationRunner {
+
+    public static void main(String[] args) {
+        SpringApplication.run(AdvancedResttemplateDemoApplication.class, args);
+    }
 
     @Autowired
     private RestTemplate restTemplate;
@@ -37,13 +41,8 @@ public class ComplexResttemplateDemoApplication implements ApplicationRunner {
         };
     }
 
-    public static void main(String[] args) {
-        SpringApplication.run(ComplexResttemplateDemoApplication.class, args);
-    }
-
     @Override
     public void run(ApplicationArguments args) throws Exception {
-
         URI uri = UriComponentsBuilder
                 .fromUriString("http://localhost:8080/coffee/?name={name}")
                 .build("mocha");
@@ -66,8 +65,7 @@ public class ComplexResttemplateDemoApplication implements ApplicationRunner {
         log.info("New Coffee : {}", response);
 
         ParameterizedTypeReference<List<Coffee>> ptr =
-                new ParameterizedTypeReference<>() {
-                };
+                new ParameterizedTypeReference<>() {};
 
         ResponseEntity<List<Coffee>> list = restTemplate
                 .exchange(coffeeUri, HttpMethod.GET, null, ptr);
