@@ -32,7 +32,7 @@ public class CoffeeController {
         return coffeeService.saveCoffee(newCoffee.getName(), newCoffee.getPrice());
     }
 
-    @GetMapping(path = "/")
+    @GetMapping(path = "/all")
     public List<Coffee> getAllCoffee() {
         return coffeeService.getAllCoffee();
     }
